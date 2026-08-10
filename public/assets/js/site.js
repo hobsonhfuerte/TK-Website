@@ -83,3 +83,137 @@ if (lightbox) {
 }
 
 renderGallery();
+
+
+/* === LIVE WEEKLY NEWS FROM ONE RUNNING GOOGLE DOC === */
+(async function initWeeklyNews() {
+  const loading = document.getElementById('weeklyNewsLoading');
+  if (!loading) return;
+
+  const errorBox = document.getElementById('weeklyNewsError');
+  const errorText = document.getElementById('weeklyNewsErrorText');
+  const grid = document.getElementById('currentNewsGrid');
+  const archiveWrap = document.getElementById('archiveWrap');
+  const archiveList = document.getElementById('archiveList');
+
+  try {
+    const response = await fetch('/api/weekly-news', { cache: 'no-store' });
+    const data = await response.json();
+
+    if (!data.ok || !data.weeks || !data.weeks.length) {
+      throw new Error(data.error || 'No weekly updates were found.');
+    }
+
+    const weeks = data.weeks;
+    renderFeaturedWeek(
+      weeks[0],
+      document.getElementById('currentWeekLabel'),
+      document.getElementById('currentWeekBody')
+    );
+
+    // If Heather has only one WEEK OF: block so far, we gracefully show
+    // a "look ahead" message rather than breaking the layout.
+    if (weeks[1]) {
+      renderFeaturedWeek(
+        weeks[1],
+        document.getElementById('nextWeekLabel'),
+        document.getElementById('nextWeekBody')
+      );
+    } else {
+      document.getElementById('nextWeekLabel').textContent = 'Look Ahead';
+      document.getElementById('nextWeekBody').innerHTML =
+        '<div class="news-section"><h3>📅 Coming Up</h3>' +
+        '<div class="news-section-content"><p>The next weekly update will appear here when Mrs. Hobson adds another <strong>WEEK OF:</strong> section to the Google Doc.</p></div></div>';
+    }
+
+    // "Previous" excludes the two featured tiles.
+    const archived = weeks.slice(2);
+    if (archived.length) {
+      archived.forEach(week => {
+        const button = document.createElement('button');
+        button.className = 'archive-link';
+        button.type = 'button';
+
+        const title = document.createElement('strong');
+        title.textContent = week.label;
+
+        const action = document.createElement('span');
+        action.textContent = 'View week →';
+
+        button.appendChild(title);
+        button.appendChild(action);
+        button.addEventListener('click', () => openArchiveWeek(week));
+        archiveList.appendChild(button);
+      });
+      archiveWrap.hidden = false;
+    }
+
+    loading.hidden = true;
+    grid.hidden = false;
+  } catch (error) {
+    loading.hidden = true;
+    errorText.textContent = error.message || 'The latest update is temporarily unavailable.';
+    errorBox.hidden = false;
+  }
+})();
+
+function renderFeaturedWeek(week, labelEl, bodyEl) {
+  labelEl.textContent = `WEEK OF: ${week.label}`;
+  bodyEl.innerHTML = '';
+
+  const sections = week.sections && week.sections.length
+    ? week.sections
+    : [{ title: 'Weekly Update', html: week.fullHtml }];
+
+  sections.forEach((section, index) => {
+    const block = document.createElement('div');
+    block.className = 'news-section';
+
+    const heading = document.createElement('h3');
+    heading.textContent = sectionIcon(section.title) + ' ' + section.title;
+
+    const content = document.createElement('div');
+    content.className = 'news-section-content';
+    content.innerHTML = section.html;
+
+    block.appendChild(heading);
+    block.appendChild(content);
+    bodyEl.appendChild(block);
+  });
+}
+
+function sectionIcon(title) {
+  const value = (title || '').toLowerCase();
+  if (value.includes('coming') || value.includes('date')) return '📅';
+  if (value.includes('reminder') || value.includes('note')) return '💙';
+  if (value.includes('week') || value.includes('overview')) return '⭐';
+  return '📌';
+}
+
+function openArchiveWeek(week) {
+  const modal = document.getElementById('archiveModal');
+  document.getElementById('archiveModalTitle').textContent = `WEEK OF: ${week.label}`;
+  document.getElementById('archiveModalBody').innerHTML = week.fullHtml;
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+(function initArchiveModal() {
+  const modal = document.getElementById('archiveModal');
+  if (!modal) return;
+
+  function close() {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('archiveModalClose').addEventListener('click', close);
+  modal.addEventListener('click', event => {
+    if (event.target === modal) close();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && modal.classList.contains('open')) close();
+  });
+})();

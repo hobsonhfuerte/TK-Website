@@ -11,7 +11,11 @@
 <body>
 <div class="topbar"><div class="topbar-inner">
   <span>📍 Fuerte Elementary &nbsp; | &nbsp; Room 21</span>
-  <span>✉ <a href="mailto:hobsonh@cajonvalley.net">hobsonh@cajonvalley.net</a></span>
+  <span class="topbar-contact">
+  ✉ <a href="mailto:hobsonh@cajonvalley.net">hobsonh@cajonvalley.net</a>
+  <span class="topbar-sep">|</span>
+  📷 <a href="https://www.instagram.com/fantasticfuertekinder/" target="_blank" rel="noopener">@fantasticfuertekinder</a>
+</span>
 </div></div>
 
 <header class="hero-image-wrap" aria-label="Welcome to TK at Fuerte Elementary">
@@ -31,31 +35,62 @@
 </div></nav>
 
 <main class="content">
-<div class="page-head"><h1>Weekly News 📝</h1><p>The latest learning, reminders and upcoming dates for Room 21.</p></div>
-<div class="two-col">
-  <div class="paper-card">
-    <h2>Week 1 • August 13–14, 2026</h2>
-    <p><strong>First Day of TK — Thursday, August 13</strong></p>
-    <ul>
-      <li><strong>Art:</strong> coming soon</li>
-      <li><strong>Library:</strong> starting in September</li>
-      <li><strong>Language Arts:</strong> learning all about the alphabet and celebrating our names</li>
-      <li><strong>Math:</strong> colors, shapes and counting fun</li>
-      <li><strong>Science:</strong> five senses</li>
-      <li><strong>Social Studies:</strong> school rules</li>
-      <li><strong>Dramatic Play:</strong> kitchen</li>
-    </ul>
+  <div class="page-head">
+    <h1>Weekly News 📝</h1>
+    <p>The newest Room 21 updates appear at the top. Previous weeks stay available below so families can easily go back to links, reminders and resources.</p>
   </div>
-  <div class="paper-card">
-    <h2>Coming Up ♥</h2>
-    <ul>
-      <li>Labor Day — No School — September 7, 2026</li>
-      <li>College Wear Wednesdays — wear your favorite college or career shirt</li>
-      <li>Falcon Spirit Fridays — wear a Falcon shirt or blue and yellow</li>
-    </ul>
+
+  <div id="weeklyNewsLoading" class="weekly-loading">
+    <div class="weekly-loading-icon">📝</div>
+    <strong>Loading the latest Room 21 news…</strong>
+  </div>
+
+  <div id="weeklyNewsError" class="weekly-error" hidden>
+    <h2>Weekly News</h2>
+    <p id="weeklyNewsErrorText">The latest update is temporarily unavailable.</p>
+    <a class="cta" href="https://docs.google.com/document/d/e/2PACX-1vQ4bA4N4M1JzWZTaAFxgXl0iyXldLpBbZt00LNYnZfCPEQd614aVoi2TLWM6KyqPNMeLJ2I4v9eUA2r/pub" target="_blank" rel="noopener">Open Weekly News Google Doc ↗</a>
+  </div>
+
+  <section id="currentNewsGrid" class="news-feature-grid" hidden>
+    <article class="news-feature current">
+      <div class="news-card-head">
+        <span class="week-chip">Current Week</span>
+        <h2 id="currentWeekLabel"></h2>
+      </div>
+      <div id="currentWeekBody" class="news-body"></div>
+    </article>
+
+    <article class="news-feature next">
+      <div class="news-card-head">
+        <span class="week-chip next">Next Week</span>
+        <h2 id="nextWeekLabel"></h2>
+      </div>
+      <div id="nextWeekBody" class="news-body"></div>
+    </article>
+  </section>
+
+  <section id="archiveWrap" class="archive-wrap" hidden>
+    <div class="archive-card">
+      <div class="archive-head">
+        <div>
+          <h2>Previous Weekly News 📚</h2>
+          <p>Open any previous week to see the complete update, including links and resources.</p>
+        </div>
+      </div>
+      <div id="archiveList" class="archive-list"></div>
+    </div>
+  </section>
+</main>
+
+<div id="archiveModal" class="archive-modal" aria-hidden="true">
+  <div class="archive-modal-card">
+    <button id="archiveModalClose" class="archive-modal-close" aria-label="Close">×</button>
+    <div class="week-chip">Previous Weekly News</div>
+    <h2 id="archiveModalTitle"></h2>
+    <div id="archiveModalBody" class="archive-modal-body"></div>
   </div>
 </div>
-</main>
+
 
 <footer class="footer">
   <div class="footer-inner">
