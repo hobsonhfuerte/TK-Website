@@ -33,7 +33,7 @@ async function handleWeeklyNewsApi() {
       return jsonResponse({
         ok: false,
         error: 'No "WEEK OF:" sections were found in the published Google Doc.'
-      }, 200);
+      });
     }
 
     return jsonResponse({
@@ -60,66 +60,47 @@ function jsonResponse(data, status = 200) {
   });
 }
 
-/*
-  Published Google Docs are HTML. We intentionally use WEEK OF: as the only
-  required delimiter so Heather can keep one running document all year.
-
-  Strategy:
-  1. Extract the main published document body.
-  2. Find each occurrence of WEEK OF: in the rendered HTML.
-  3. Segment the HTML into week-sized blocks.
-  4. Preserve safe formatting and links.
-  5. Extract common optional sections (This Week, Coming Up, Reminders, etc.)
-     when they exist; otherwise the full week content is still preserved.
-*/
 function parseWeeks(sourceHtml) {
   let body = extractDocumentBody(sourceHtml);
   if (!body) return [];
 
   body = cleanGoogleHtml(body);
 
-  // Locate WEEK OF: markers in the HTML while tolerating embedded span tags.
   const markerRegex = /WEEK(?:\s|&nbsp;|<[^>]+>)*OF(?:\s|&nbsp;|<[^>]+>)*:/gi;
   const markers = [];
   let match;
   while ((match = markerRegex.exec(body)) !== null) {
-    markers.push({ index: match.index, length: match[0].length });
+    markers.push({ index: match.index });
   }
 
   if (!markers.length) return [];
 
   const weeks = [];
+
   for (let i = 0; i < markers.length; i++) {
     const start = markers[i].index;
     const end = i + 1 < markers.length ? markers[i + 1].index : body.length;
-    let block = body.slice(start, end);
-    block = normalizeWeekBlock(block);
-
+    const rawBlock = body.slice(start, end);
+    const block = normalizeBlock(rawBlock);
     const plain = textFromHtml(block);
+
     const labelMatch = plain.match(/WEEK\s+OF\s*:\s*([^\n\r]+)/i);
     let label = labelMatch ? labelMatch[1].trim() : `Week ${i + 1}`;
-
-    // Keep the label concise in case Google collapses multiple lines.
     label = label.split(/\s{3,}/)[0].trim();
-
-    const sections = extractNamedSections(block);
-    const fullHtml = sanitizeHtml(block);
 
     weeks.push({
       id: slugify(label) || `week-${i + 1}`,
       label,
-      fullHtml,
-      sections
+      fullHtml: sanitizeHtml(removeWeekHeading(block)),
+      sections: extractSections(block)
     });
   }
 
-  // The agreed workflow is newest week at the top of the Google Doc,
-  // so Google-document order is the site order.
+  // Heather will keep the newest WEEK OF: section at the top.
   return weeks;
 }
 
 function extractDocumentBody(sourceHtml) {
-  // Google published docs commonly put content inside #contents.
   let match = sourceHtml.match(/<div[^>]+id=["']contents["'][^>]*>([\s\S]*?)<\/div>\s*<\/body>/i);
   if (match) return match[1];
 
@@ -138,117 +119,96 @@ function cleanGoogleHtml(value) {
     .replace(/\sstyle=(["']).*?\1/gi, "");
 }
 
-function normalizeWeekBlock(block) {
-  // Add line boundaries around block elements so text extraction is reliable.
-  return block
-    .replace(/<(p|div|li|h1|h2|h3|h4|h5|h6|br)\b[^>]*>/gi, match => "\n" + match)
-    .replace(/<\/(p|div|li|h1|h2|h3|h4|h5|h6)>/gi, match => match + "\n");
+function normalizeBlock(value) {
+  return value
+    .replace(/<(p|div|li|h1|h2|h3|h4|h5|h6|br)\b[^>]*>/gi, m => "\n" + m)
+    .replace(/<\/(p|div|li|h1|h2|h3|h4|h5|h6)>/gi, m => m + "\n");
 }
 
-function extractNamedSections(block) {
-  const sectionNames = [
+function extractSections(block) {
+  const names = [
     "THIS WEEK",
-    "COMING UP",
     "REMINDERS",
+    "LOOK AHEAD",
+    "COMING UP",
     "FAMILY NOTES",
     "NOTES",
     "IMPORTANT DATES"
   ];
 
-  const plain = textFromHtml(block);
-  const upper = plain.toUpperCase();
-
-  const found = [];
-  for (const name of sectionNames) {
-    const idx = upper.indexOf(name);
-    if (idx >= 0) found.push({ name, idx });
+  const positions = [];
+  for (const name of names) {
+    const idx = findLabelHtmlIndex(block, name);
+    if (idx >= 0) positions.push({ name, idx });
   }
+  positions.sort((a,b) => a.idx - b.idx);
 
-  found.sort((a, b) => a.idx - b.idx);
-
-  if (!found.length) {
-    return [{ title: "Weekly Update", html: sanitizeHtml(removeWeekLabel(block)) }];
+  if (!positions.length) {
+    return [{
+      title: "Weekly Update",
+      html: sanitizeHtml(removeWeekHeading(block))
+    }];
   }
 
   const sections = [];
-  for (let i = 0; i < found.length; i++) {
-    const current = found[i];
-    const next = found[i + 1];
 
-    // We slice by plain-text locations only to identify headings, then fall back
-    // to an HTML split helper to preserve links/formatting.
-    const htmlSection = sliceHtmlBetweenLabels(
-      block,
-      current.name,
-      next ? next.name : null
-    );
+  const intro = block.slice(
+    findWeekHeadingEnd(block),
+    positions[0].idx
+  );
 
+  if (textFromHtml(intro).trim()) {
     sections.push({
-      title: titleCase(current.name),
-      html: sanitizeHtml(htmlSection)
+      title: "Overview",
+      html: sanitizeHtml(intro)
     });
   }
 
-  // Preserve any intro content before the first named heading.
-  const intro = sliceHtmlBeforeLabel(removeWeekLabel(block), found[0].name);
-  if (textFromHtml(intro).trim()) {
-    sections.unshift({
-      title: "Overview",
-      html: sanitizeHtml(intro)
+  for (let i = 0; i < positions.length; i++) {
+    const current = positions[i];
+    const next = positions[i + 1];
+    const start = findHeadingEnd(block, current.idx);
+    const end = next ? next.idx : block.length;
+
+    sections.push({
+      title: titleCase(current.name),
+      html: sanitizeHtml(block.slice(start, end))
     });
   }
 
   return sections;
 }
 
-function sliceHtmlBetweenLabels(html, startLabel, endLabel) {
-  const start = findLabelHtmlIndex(html, startLabel);
-  if (start < 0) return "";
-
-  const startEnd = findEndOfHeading(html, start, startLabel);
-  const end = endLabel ? findLabelHtmlIndex(html, endLabel, startEnd) : -1;
-  return html.slice(startEnd, end >= 0 ? end : html.length);
+function findWeekHeadingEnd(html) {
+  const idx = html.search(/WEEK(?:\s|&nbsp;|<[^>]+>)*OF(?:\s|&nbsp;|<[^>]+>)*:/i);
+  return idx >= 0 ? findHeadingEnd(html, idx) : 0;
 }
 
-function sliceHtmlBeforeLabel(html, label) {
-  const idx = findLabelHtmlIndex(html, label);
-  return idx >= 0 ? html.slice(0, idx) : html;
-}
-
-function findLabelHtmlIndex(html, label, from = 0) {
-  const escaped = label
+function findLabelHtmlIndex(html, label) {
+  const pattern = label
     .split(/\s+/)
-    .map(part => escapeRegex(part))
+    .map(escapeRegex)
     .join("(?:\\s|&nbsp;|<[^>]+>)*");
-  const regex = new RegExp(escaped, "i");
-  const sub = html.slice(from);
-  const m = sub.match(regex);
-  return m ? from + m.index : -1;
+  const match = html.match(new RegExp(pattern, "i"));
+  return match ? match.index : -1;
 }
 
-function findEndOfHeading(html, labelIndex, label) {
-  const afterLabel = labelIndex + label.length;
-  const candidates = [
-    html.indexOf("</p>", afterLabel),
-    html.indexOf("</div>", afterLabel),
-    html.indexOf("</h1>", afterLabel),
-    html.indexOf("</h2>", afterLabel),
-    html.indexOf("</h3>", afterLabel),
-    html.indexOf("<br", afterLabel)
-  ].filter(x => x >= 0);
-
-  return candidates.length ? Math.min(...candidates) + 5 : afterLabel;
+function findHeadingEnd(html, from) {
+  const closingTags = [
+    "</p>", "</div>", "</h1>", "</h2>", "</h3>", "</h4>", "<br"
+  ];
+  const found = closingTags
+    .map(tag => html.indexOf(tag, from))
+    .filter(index => index >= 0);
+  return found.length ? Math.min(...found) + 5 : from;
 }
 
-function removeWeekLabel(html) {
-  return html.replace(
-    /WEEK(?:\s|&nbsp;|<[^>]+>)*OF(?:\s|&nbsp;|<[^>]+>)*:[\s\S]*?(?=<\/p>|<\/div>|<br|$)/i,
-    ""
-  );
+function removeWeekHeading(html) {
+  const end = findWeekHeadingEnd(html);
+  return end ? html.slice(end) : html;
 }
 
 function sanitizeHtml(value) {
-  // Google is the trusted published source, but keep only presentation-safe tags.
   let safe = value
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/<iframe[\s\S]*?<\/iframe>/gi, "")
@@ -257,7 +217,6 @@ function sanitizeHtml(value) {
     .replace(/\son\w+=(["']).*?\1/gi, "")
     .replace(/\son\w+=([^\s>]+)/gi, "");
 
-  // Make links open safely in a new tab.
   safe = safe.replace(/<a\s+([^>]*href=["'][^"']+["'][^>]*)>/gi, (m, attrs) => {
     const cleaned = attrs
       .replace(/\starget=(["']).*?\1/gi, "")
@@ -275,10 +234,10 @@ function textFromHtml(value) {
       .replace(/<\/(p|div|li|h1|h2|h3|h4|h5|h6)>/gi, "\n")
       .replace(/<[^>]+>/g, "")
   )
-  .replace(/\r/g, "")
-  .replace(/[ \t]+\n/g, "\n")
-  .replace(/\n{3,}/g, "\n\n")
-  .trim();
+    .replace(/\r/g, "")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 function decodeEntities(value) {

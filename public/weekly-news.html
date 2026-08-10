@@ -35,62 +35,53 @@
 </div></nav>
 
 <main class="content">
-  <div class="page-head">
-    <h1>Weekly News 📝</h1>
-    <p>The newest Room 21 updates appear at the top. Previous weeks stay available below so families can easily go back to links, reminders and resources.</p>
-  </div>
+<div class="page-head">
+  <h1>Weekly News 📝</h1>
+  <p>Everything happening in Room 21 this week, plus an easy way to revisit previous updates.</p>
+</div>
 
-  <div id="weeklyNewsLoading" class="weekly-loading">
-    <div class="weekly-loading-icon">📝</div>
-    <strong>Loading the latest Room 21 news…</strong>
-  </div>
+<div id="weeklyNewsLoading" class="weekly-loading">
+  <div class="weekly-loading-icon">📝</div>
+  <strong>Loading the latest Room 21 news…</strong>
+</div>
 
-  <div id="weeklyNewsError" class="weekly-error" hidden>
-    <h2>Weekly News</h2>
-    <p id="weeklyNewsErrorText">The latest update is temporarily unavailable.</p>
-    <a class="cta" href="https://docs.google.com/document/d/e/2PACX-1vQ4bA4N4M1JzWZTaAFxgXl0iyXldLpBbZt00LNYnZfCPEQd614aVoi2TLWM6KyqPNMeLJ2I4v9eUA2r/pub" target="_blank" rel="noopener">Open Weekly News Google Doc ↗</a>
-  </div>
+<div id="weeklyNewsError" class="weekly-error" hidden>
+  <h2>Weekly News</h2>
+  <p id="weeklyNewsErrorText">The latest update is temporarily unavailable.</p>
+  <a class="cta" href="https://docs.google.com/document/d/e/2PACX-1vQ4bA4N4M1JzWZTaAFxgXl0iyXldLpBbZt00LNYnZfCPEQd614aVoi2TLWM6KyqPNMeLJ2I4v9eUA2r/pub" target="_blank" rel="noopener">Open Weekly News Google Doc ↗</a>
+</div>
 
-  <section id="currentNewsGrid" class="news-feature-grid" hidden>
-    <article class="news-feature current">
-      <div class="news-card-head">
-        <span class="week-chip">Current Week</span>
-        <h2 id="currentWeekLabel"></h2>
-      </div>
-      <div id="currentWeekBody" class="news-body"></div>
-    </article>
-
-    <article class="news-feature next">
-      <div class="news-card-head">
-        <span class="week-chip next">Next Week</span>
-        <h2 id="nextWeekLabel"></h2>
-      </div>
-      <div id="nextWeekBody" class="news-body"></div>
-    </article>
-  </section>
-
-  <section id="archiveWrap" class="archive-wrap" hidden>
-    <div class="archive-card">
-      <div class="archive-head">
-        <div>
-          <h2>Previous Weekly News 📚</h2>
-          <p>Open any previous week to see the complete update, including links and resources.</p>
-        </div>
-      </div>
-      <div id="archiveList" class="archive-list"></div>
+<div id="weeklyLayout" class="weekly-layout" hidden>
+  <section class="current-card">
+    <div class="card-head">
+      <span class="chip">Current Week</span>
+      <h2 id="currentWeekLabel"></h2>
     </div>
+    <div id="currentWeekBody" class="current-body"></div>
   </section>
+
+  <aside class="archive-card">
+    <div class="card-head">
+      <span class="chip archive-chip">Archive</span>
+      <h2>Previous Weekly News 📚</h2>
+      <p>Revisit links, reminders and resources from earlier weeks.</p>
+    </div>
+    <div class="archive-body">
+      <div id="archiveEmpty" class="archive-note" hidden>No previous weekly updates yet.</div>
+      <div id="archiveList"></div>
+    </div>
+  </aside>
+</div>
 </main>
 
 <div id="archiveModal" class="archive-modal" aria-hidden="true">
   <div class="archive-modal-card">
     <button id="archiveModalClose" class="archive-modal-close" aria-label="Close">×</button>
-    <div class="week-chip">Previous Weekly News</div>
+    <span class="chip">Previous Weekly News</span>
     <h2 id="archiveModalTitle"></h2>
     <div id="archiveModalBody" class="archive-modal-body"></div>
   </div>
 </div>
-
 
 <footer class="footer">
   <div class="footer-inner">

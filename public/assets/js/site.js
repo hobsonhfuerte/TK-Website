@@ -85,16 +85,16 @@ if (lightbox) {
 renderGallery();
 
 
-/* === LIVE WEEKLY NEWS FROM ONE RUNNING GOOGLE DOC === */
+/* === LIVE WEEKLY NEWS: CURRENT WEEK + ARCHIVE === */
 (async function initWeeklyNews() {
   const loading = document.getElementById('weeklyNewsLoading');
   if (!loading) return;
 
   const errorBox = document.getElementById('weeklyNewsError');
   const errorText = document.getElementById('weeklyNewsErrorText');
-  const grid = document.getElementById('currentNewsGrid');
-  const archiveWrap = document.getElementById('archiveWrap');
+  const layout = document.getElementById('weeklyLayout');
   const archiveList = document.getElementById('archiveList');
+  const archiveEmpty = document.getElementById('archiveEmpty');
 
   try {
     const response = await fetch('/api/weekly-news', { cache: 'no-store' });
@@ -104,70 +104,44 @@ renderGallery();
       throw new Error(data.error || 'No weekly updates were found.');
     }
 
-    const weeks = data.weeks;
-    renderFeaturedWeek(
-      weeks[0],
-      document.getElementById('currentWeekLabel'),
-      document.getElementById('currentWeekBody')
-    );
+    const [current, ...previous] = data.weeks;
 
-    // If Heather has only one WEEK OF: block so far, we gracefully show
-    // a "look ahead" message rather than breaking the layout.
-    if (weeks[1]) {
-      renderFeaturedWeek(
-        weeks[1],
-        document.getElementById('nextWeekLabel'),
-        document.getElementById('nextWeekBody')
-      );
+    document.getElementById('currentWeekLabel').textContent =
+      `WEEK OF: ${current.label}`;
+
+    renderCurrentWeek(current);
+
+    if (previous.length) {
+      renderArchive(previous, archiveList);
     } else {
-      document.getElementById('nextWeekLabel').textContent = 'Look Ahead';
-      document.getElementById('nextWeekBody').innerHTML =
-        '<div class="news-section"><h3>📅 Coming Up</h3>' +
-        '<div class="news-section-content"><p>The next weekly update will appear here when Mrs. Hobson adds another <strong>WEEK OF:</strong> section to the Google Doc.</p></div></div>';
-    }
-
-    // "Previous" excludes the two featured tiles.
-    const archived = weeks.slice(2);
-    if (archived.length) {
-      archived.forEach(week => {
-        const button = document.createElement('button');
-        button.className = 'archive-link';
-        button.type = 'button';
-
-        const title = document.createElement('strong');
-        title.textContent = week.label;
-
-        const action = document.createElement('span');
-        action.textContent = 'View week →';
-
-        button.appendChild(title);
-        button.appendChild(action);
-        button.addEventListener('click', () => openArchiveWeek(week));
-        archiveList.appendChild(button);
-      });
-      archiveWrap.hidden = false;
+      archiveEmpty.hidden = false;
     }
 
     loading.hidden = true;
-    grid.hidden = false;
+    layout.hidden = false;
   } catch (error) {
     loading.hidden = true;
-    errorText.textContent = error.message || 'The latest update is temporarily unavailable.';
+    errorText.textContent =
+      error.message || 'The latest update is temporarily unavailable.';
     errorBox.hidden = false;
   }
 })();
 
-function renderFeaturedWeek(week, labelEl, bodyEl) {
-  labelEl.textContent = `WEEK OF: ${week.label}`;
-  bodyEl.innerHTML = '';
+function renderCurrentWeek(week) {
+  const body = document.getElementById('currentWeekBody');
+  body.innerHTML = '';
 
   const sections = week.sections && week.sections.length
     ? week.sections
     : [{ title: 'Weekly Update', html: week.fullHtml }];
 
-  sections.forEach((section, index) => {
-    const block = document.createElement('div');
-    block.className = 'news-section';
+  sections.forEach(section => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'news-section';
+
+    if (isLookAhead(section.title)) {
+      wrapper.classList.add('look-ahead');
+    }
 
     const heading = document.createElement('h3');
     heading.textContent = sectionIcon(section.title) + ' ' + section.title;
@@ -176,23 +150,50 @@ function renderFeaturedWeek(week, labelEl, bodyEl) {
     content.className = 'news-section-content';
     content.innerHTML = section.html;
 
-    block.appendChild(heading);
-    block.appendChild(content);
-    bodyEl.appendChild(block);
+    wrapper.appendChild(heading);
+    wrapper.appendChild(content);
+    body.appendChild(wrapper);
+  });
+}
+
+function renderArchive(weeks, target) {
+  // Keep the initial version simple and predictable: show weeks in Google Doc order.
+  // We can group by month later if desired once we have several months of content.
+  weeks.forEach(week => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'archive-link';
+
+    const label = document.createElement('strong');
+    label.textContent = week.label;
+
+    const action = document.createElement('span');
+    action.textContent = 'View →';
+
+    button.appendChild(label);
+    button.appendChild(action);
+    button.addEventListener('click', () => openArchiveWeek(week));
+    target.appendChild(button);
   });
 }
 
 function sectionIcon(title) {
   const value = (title || '').toLowerCase();
-  if (value.includes('coming') || value.includes('date')) return '📅';
+  if (value.includes('look ahead') || value.includes('coming') || value.includes('date')) return '📅';
   if (value.includes('reminder') || value.includes('note')) return '💙';
-  if (value.includes('week') || value.includes('overview')) return '⭐';
+  if (value.includes('this week') || value.includes('overview') || value.includes('weekly')) return '⭐';
   return '📌';
+}
+
+function isLookAhead(title) {
+  const value = (title || '').toLowerCase();
+  return value.includes('look ahead') || value.includes('coming up');
 }
 
 function openArchiveWeek(week) {
   const modal = document.getElementById('archiveModal');
-  document.getElementById('archiveModalTitle').textContent = `WEEK OF: ${week.label}`;
+  document.getElementById('archiveModalTitle').textContent =
+    `WEEK OF: ${week.label}`;
   document.getElementById('archiveModalBody').innerHTML = week.fullHtml;
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
@@ -203,17 +204,22 @@ function openArchiveWeek(week) {
   const modal = document.getElementById('archiveModal');
   if (!modal) return;
 
-  function close() {
+  function closeModal() {
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
   }
 
-  document.getElementById('archiveModalClose').addEventListener('click', close);
+  document.getElementById('archiveModalClose')
+    .addEventListener('click', closeModal);
+
   modal.addEventListener('click', event => {
-    if (event.target === modal) close();
+    if (event.target === modal) closeModal();
   });
+
   document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && modal.classList.contains('open')) close();
+    if (event.key === 'Escape' && modal.classList.contains('open')) {
+      closeModal();
+    }
   });
 })();
