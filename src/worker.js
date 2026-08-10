@@ -126,37 +126,44 @@ function normalizeBlock(value) {
 }
 
 function extractSections(block) {
-  const names = [
-    "THIS WEEK",
-    "REMINDERS",
-    "LOOK AHEAD",
-    "COMING UP",
-    "FAMILY NOTES",
-    "NOTES",
-    "IMPORTANT DATES"
-  ];
+  /*
+    Flexible section syntax:
+      [HEADING] This Week
+      [HEADING] Look Ahead
+      [HEADING] Field Trip Info
 
-  const positions = [];
-  for (const name of names) {
-    const idx = findLabelHtmlIndex(block, name);
-    if (idx >= 0) positions.push({ name, idx });
+    WEEK OF: remains the only required weekly delimiter.
+    [HEADING] is optional. If a week has none, the entire weekly block
+    is returned as one "Weekly Update" section.
+  */
+  const content = removeWeekHeading(block);
+  const headingRegex = /\[HEADING\](?:\s|&nbsp;|<[^>]+>)*([^<\n\r]+)/gi;
+
+  const matches = [];
+  let match;
+
+  while ((match = headingRegex.exec(content)) !== null) {
+    const title = decodeEntities(match[1] || "").trim();
+    if (title) {
+      matches.push({
+        title,
+        index: match.index,
+        markerEnd: headingRegex.lastIndex
+      });
+    }
   }
-  positions.sort((a,b) => a.idx - b.idx);
 
-  if (!positions.length) {
+  if (!matches.length) {
     return [{
       title: "Weekly Update",
-      html: sanitizeHtml(removeWeekHeading(block))
+      html: sanitizeHtml(content)
     }];
   }
 
   const sections = [];
 
-  const intro = block.slice(
-    findWeekHeadingEnd(block),
-    positions[0].idx
-  );
-
+  // Preserve any text before the first [HEADING].
+  const intro = content.slice(0, matches[0].index);
   if (textFromHtml(intro).trim()) {
     sections.push({
       title: "Overview",
@@ -164,15 +171,37 @@ function extractSections(block) {
     });
   }
 
-  for (let i = 0; i < positions.length; i++) {
-    const current = positions[i];
-    const next = positions[i + 1];
-    const start = findHeadingEnd(block, current.idx);
-    const end = next ? next.idx : block.length;
+  for (let i = 0; i < matches.length; i++) {
+    const current = matches[i];
+    const next = matches[i + 1];
+
+    // Start after the heading marker/title itself.
+    let sectionStart = current.markerEnd;
+
+    // If the heading is inside a paragraph/div/heading tag, skip to its closing tag.
+    const closingCandidates = [
+      content.indexOf("</p>", sectionStart),
+      content.indexOf("</div>", sectionStart),
+      content.indexOf("</h1>", sectionStart),
+      content.indexOf("</h2>", sectionStart),
+      content.indexOf("</h3>", sectionStart),
+      content.indexOf("</h4>", sectionStart),
+      content.indexOf("<br", sectionStart)
+    ].filter(index => index >= 0);
+
+    if (closingCandidates.length) {
+      const nearestClose = Math.min(...closingCandidates);
+      // Only use that close if it occurs before the next [HEADING] marker.
+      if (!next || nearestClose < next.index) {
+        sectionStart = nearestClose + 5;
+      }
+    }
+
+    const sectionEnd = next ? next.index : content.length;
 
     sections.push({
-      title: titleCase(current.name),
-      html: sanitizeHtml(block.slice(start, end))
+      title: current.title,
+      html: sanitizeHtml(content.slice(sectionStart, sectionEnd))
     });
   }
 
@@ -182,15 +211,6 @@ function extractSections(block) {
 function findWeekHeadingEnd(html) {
   const idx = html.search(/WEEK(?:\s|&nbsp;|<[^>]+>)*OF(?:\s|&nbsp;|<[^>]+>)*:/i);
   return idx >= 0 ? findHeadingEnd(html, idx) : 0;
-}
-
-function findLabelHtmlIndex(html, label) {
-  const pattern = label
-    .split(/\s+/)
-    .map(escapeRegex)
-    .join("(?:\\s|&nbsp;|<[^>]+>)*");
-  const match = html.match(new RegExp(pattern, "i"));
-  return match ? match.index : -1;
 }
 
 function findHeadingEnd(html, from) {

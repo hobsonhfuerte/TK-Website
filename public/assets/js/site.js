@@ -179,9 +179,13 @@ function renderArchive(weeks, target) {
 
 function sectionIcon(title) {
   const value = (title || '').toLowerCase();
+
+  // Optional visual accents only; headings themselves can be anything.
   if (value.includes('look ahead') || value.includes('coming') || value.includes('date')) return '📅';
   if (value.includes('reminder') || value.includes('note')) return '💙';
-  if (value.includes('this week') || value.includes('overview') || value.includes('weekly')) return '⭐';
+  if (value.includes('week') || value.includes('learning') || value.includes('overview')) return '⭐';
+  if (value.includes('field trip') || value.includes('event')) return '🚌';
+  if (value.includes('book') || value.includes('reading')) return '📚';
   return '📌';
 }
 
