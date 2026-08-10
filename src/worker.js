@@ -1,3 +1,4 @@
+const WISH_LIST_URL = "https://docs.google.com/document/d/e/2PACX-1vRLZ7QLgACG9xD2uPL7E9IKntiF8niLbKVVAU0H3sjxG4LCmRc-gAvHP2vY7SM-k-2aMwxWRv24Bgg1/pub";
 const WEEKLY_NEWS_URL = "https://docs.google.com/document/d/e/2PACX-1vQ4bA4N4M1JzWZTaAFxgXl0iyXldLpBbZt00LNYnZfCPEQd614aVoi2TLWM6KyqPNMeLJ2I4v9eUA2r/pub";
 
 export default {
@@ -6,6 +7,11 @@ export default {
 
     if (url.pathname === "/api/weekly-news") {
       return handleWeeklyNewsApi();
+    }
+
+
+    if (url.pathname === "/api/wish-list") {
+      return handleWishListApi();
     }
 
     return env.ASSETS.fetch(request);
@@ -283,4 +289,114 @@ function slugify(value) {
 
 function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+
+async function handleWishListApi() {
+  try {
+    const upstream = await fetch(WISH_LIST_URL, {
+      headers: { "User-Agent": "Mozilla/5.0 Room21Website/1.0" },
+      cf: { cacheTtl: 60, cacheEverything: true }
+    });
+
+    if (!upstream.ok) {
+      return jsonResponse(
+        { ok: false, error: "Wish List is temporarily unavailable." },
+        upstream.status
+      );
+    }
+
+    const sourceHtml = await upstream.text();
+    const body = extractDocumentBody(sourceHtml);
+    const parsed = parseWishList(body);
+
+    return jsonResponse({
+      ok: true,
+      source: WISH_LIST_URL,
+      introHtml: parsed.introHtml,
+      dailyUseHtml: parsed.dailyUseHtml,
+      funExtrasHtml: parsed.funExtrasHtml
+    });
+  } catch (error) {
+    return jsonResponse({
+      ok: false,
+      error: "Wish List is temporarily unavailable. Please try again shortly."
+    }, 502);
+  }
+}
+
+function parseWishList(sourceHtml) {
+  const cleaned = cleanGoogleHtml(sourceHtml || "");
+
+  const daily = findWishHeading(cleaned, "DAILY USE");
+  const fun = findWishHeading(cleaned, "FUN EXTRAS");
+
+  const introEnd = daily ? daily.index : (fun ? fun.index : cleaned.length);
+  const introHtml = sanitizeWishListHtml(cleaned.slice(0, introEnd));
+
+  const dailyUseHtml = daily
+    ? sanitizeWishListHtml(
+        cleaned.slice(
+          daily.end,
+          fun && fun.index > daily.index ? fun.index : cleaned.length
+        )
+      )
+    : "";
+
+  const funExtrasHtml = fun
+    ? sanitizeWishListHtml(cleaned.slice(fun.end))
+    : "";
+
+  return {
+    introHtml,
+    dailyUseHtml,
+    funExtrasHtml
+  };
+}
+
+function findWishHeading(html, title) {
+  // Heather uses: [HEADING] DAILY USE / [HEADING] FUN EXTRAS
+  const pattern = new RegExp(
+    "\\\\[HEADING\\\\](?:\\\\s|&nbsp;|<[^>]+>)*" +
+    title.split(/\\s+/).map(escapeRegex).join("(?:\\\\s|&nbsp;|<[^>]+>)*"),
+    "i"
+  );
+
+  const match = html.match(pattern);
+  if (!match) return null;
+
+  let end = match.index + match[0].length;
+
+  // Skip the rest of the heading's containing block when possible.
+  const closingTags = [
+    "</p>", "</div>", "</h1>", "</h2>", "</h3>", "</h4>", "<br"
+  ];
+  const closes = closingTags
+    .map(tag => html.indexOf(tag, end))
+    .filter(index => index >= 0);
+
+  if (closes.length) end = Math.min(...closes) + 5;
+
+  return { index: match.index, end };
+}
+
+function sanitizeWishListHtml(value) {
+  let safe = (value || "")
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<iframe[\s\S]*?<\/iframe>/gi, "")
+    .replace(/<object[\s\S]*?<\/object>/gi, "")
+    .replace(/<embed[^>]*>/gi, "")
+    .replace(/\son\w+=(["']).*?\1/gi, "")
+    .replace(/\son\w+=([^\s>]+)/gi, "");
+
+  // Preserve every Google Doc hyperlink and make it safe.
+  safe = safe.replace(/<a\s+([^>]*href=["'][^"']+["'][^>]*)>/gi, (m, attrs) => {
+    const cleaned = attrs
+      .replace(/\starget=(["']).*?\1/gi, "")
+      .replace(/\srel=(["']).*?\1/gi, "");
+    return `<a ${cleaned} target="_blank" rel="noopener noreferrer">`;
+  });
+
+  return safe.trim();
 }

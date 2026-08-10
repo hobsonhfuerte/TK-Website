@@ -35,14 +35,42 @@
 </div></nav>
 
 <main class="content">
-<div class="page-head"><h1>Classroom Wish List ⭐</h1><p>Please don't feel obligated — families often ask what Room 21 can use most.</p></div>
-<div class="two-col">
-  <div class="wish-box"><h2>Daily Use</h2><ul>
-    <li>Washable markers — we go through a LOT!</li><li>Foaming hand soap bottles</li><li>Liquid soap refills</li><li>Kleenex boxes</li><li>Sidewalk chalk</li><li>Plain M&Ms</li><li>Play-Doh</li><li>Clorox wipes — adult use only</li>
-  </ul></div>
-  <div class="wish-box"><h2>Fun Extras</h2><ul>
-    <li>Melissa & Doug wooden pantry products</li><li>Melissa & Doug wooden fridge food</li><li>Melissa & Doug frozen treats set</li><li>Wooden fruits or vegetables</li><li>Acrylic gems for sensory bin/light table</li><li>Holiday mini erasers</li>
-  </ul><p><strong>Most-used gift cards:</strong> Amazon, Target, Costco and Lakeshore.</p></div>
+<div class="page-head">
+  <h1>Classroom Wish List ⭐</h1>
+  <p>Please do not feel obligated to send anything in, but parents often ask, “What do you need for the classroom?” Here are the things we use most.</p>
+</div>
+
+<div id="wishListLoading" class="weekly-loading">
+  <div class="weekly-loading-icon">⭐</div>
+  <strong>Loading the latest classroom wish list…</strong>
+</div>
+
+<div id="wishListError" class="weekly-error" hidden>
+  <h2>Classroom Wish List</h2>
+  <p id="wishListErrorText">The wish list is temporarily unavailable.</p>
+  <a class="cta" href="https://docs.google.com/document/d/e/2PACX-1vRLZ7QLgACG9xD2uPL7E9IKntiF8niLbKVVAU0H3sjxG4LCmRc-gAvHP2vY7SM-k-2aMwxWRv24Bgg1/pub" target="_blank" rel="noopener">Open Wish List Google Doc ↗</a>
+</div>
+
+<div id="wishListContent" hidden>
+  <div id="wishListIntro" class="wish-intro"></div>
+
+  <div class="wish-grid">
+    <section class="wish-tile daily">
+      <div class="wish-head">
+        <span class="chip">Classroom Essentials</span>
+        <h2>DAILY USE</h2>
+      </div>
+      <div id="wishDailyUse" class="wish-body"></div>
+    </section>
+
+    <section class="wish-tile fun">
+      <div class="wish-head">
+        <span class="chip archive-chip">Optional Extras</span>
+        <h2>FUN EXTRAS</h2>
+      </div>
+      <div id="wishFunExtras" class="wish-body"></div>
+    </section>
+  </div>
 </div>
 </main>
 

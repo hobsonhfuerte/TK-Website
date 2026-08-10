@@ -35,44 +35,58 @@
 </div></nav>
 
 <main class="content">
+
 <section class="home-grid-top">
   <div class="paper-card">
+    <span id="homeWeekChip" class="chip">Current Week</span>
     <h2>This Week at a Glance ⭐</h2>
-    <div class="at-glance">
-      <div class="glance-item"><div class="glance-icon">🔤</div><div class="glance-label">Language Arts</div><div class="glance-value">Alphabet & Names</div></div>
-      <div class="glance-item"><div class="glance-icon">123</div><div class="glance-label">Math</div><div class="glance-value">Colors, Shapes & Counting</div></div>
-      <div class="glance-item"><div class="glance-icon">👃</div><div class="glance-label">Science</div><div class="glance-value">Five Senses</div></div>
-      <div class="glance-item"><div class="glance-icon">🏫</div><div class="glance-label">Social Studies</div><div class="glance-value">School Rules</div></div>
+
+    <div id="homeWeekLoading" class="home-week-loading">
+      Loading this week's classroom update…
     </div>
-  </div>
-  <div class="paper-card welcome-card">
-    <div>
-      <h2>Welcome! ♥</h2>
-      <p>I am so excited to welcome you to TK in Room 21 at Fuerte. This is my thirteenth year at Fuerte and my 27th year of teaching.</p>
-      <a class="cta" href="about.html">Learn more about me ♥</a>
+
+    <div id="homeWeekError" class="home-week-error" hidden>
+      This week's highlights are temporarily unavailable.
     </div>
-    <img class="mini-photo" src="assets/images/heather-hobson.png" alt="Mrs. Hobson">
+
+    <div id="homeGlance" class="at-glance" hidden></div>
+
+    <a class="quick-link" href="weekly-news.html">Read the full Weekly News →</a>
   </div>
 </section>
+
 <section class="home-grid-bottom">
-  <div class="paper-card">
-    <div class="ribbon-label">Reminders 💙</div>
-    <ul><li>First Day of TK — Thursday, August 13</li><li>Library begins in September</li><li>Please label backpacks, water bottles and lunch boxes</li></ul>
-    <div class="card-illustration">✏️📚</div>
+  <div class="paper-card about-mini">
+    <div>
+      <div class="ribbon-label coral">About the Teacher 🍎</div>
+      <img src="assets/images/heather-hobson.png" alt="Mrs. Heather Hobson">
+      <p><strong>Heather Hobson</strong><br>27 years of teaching and proud to be a Fuerte Falcon!</p>
+    </div>
+    <a class="cta" href="about.html">Learn more ♥</a>
   </div>
-  <div class="paper-card">
-    <div class="ribbon-label green">Upcoming 💚</div>
-    <ul><li>College Wear Wednesdays</li><li>Falcon Spirit Fridays</li><li>Labor Day — No School — September 7</li></ul>
-    <div class="card-illustration">📅</div>
+
+  <div id="homeReminderCard" class="paper-card" hidden>
+    <div class="ribbon-label">Reminder 💙</div>
+    <div id="homeReminderBody" class="home-dynamic-body"></div>
+    <a class="quick-link" href="weekly-news.html">See this week’s full update →</a>
   </div>
+
+  <div id="homeLookAheadCard" class="paper-card" hidden>
+    <div class="ribbon-label green">Look Ahead 💚</div>
+    <div id="homeLookAheadBody" class="home-dynamic-body"></div>
+    <a class="quick-link" href="weekly-news.html">See upcoming details →</a>
+  </div>
+
   <div class="paper-card">
     <div class="ribbon-label coral">Let's Connect ♥</div>
     <p>I'm looking forward to a great year!</p>
     <p style="font-family:'Patrick Hand',cursive;font-size:35px;color:var(--navy);margin:8px 0">Go Falcons!</p>
     <a class="cta" href="mailto:hobsonh@cajonvalley.net">Email Mrs. Hobson</a>
+    <p class="home-instagram">📷 <a href="https://www.instagram.com/fantasticfuertekinder/" target="_blank" rel="noopener">@fantasticfuertekinder</a></p>
     <div class="card-illustration">🎒</div>
   </div>
 </section>
+
 </main>
 
 <footer class="footer">
