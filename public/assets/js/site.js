@@ -246,7 +246,8 @@ function openArchiveWeek(week) {
       throw new Error(data.error || 'The wish list could not be loaded.');
     }
 
-    document.getElementById('wishListIntro').innerHTML = data.introHtml || '';
+    const wishIntro = document.getElementById('wishListIntro');
+    if (wishIntro) wishIntro.hidden = true;
     document.getElementById('wishDailyUse').innerHTML =
       data.dailyUseHtml || '<p>No items listed right now.</p>';
     document.getElementById('wishFunExtras').innerHTML =

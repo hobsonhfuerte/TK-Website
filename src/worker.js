@@ -326,58 +326,75 @@ async function handleWishListApi() {
 }
 
 function parseWishList(sourceHtml) {
+  // Google published Docs contain their own toolbar/header plus substantial
+  // formatting markup. Convert the document body to stable logical blocks
+  // first, then split on Heather's [HEADING] markers.
   const cleaned = cleanGoogleHtml(sourceHtml || "");
+  const blocks = wishListBlocks(cleaned);
 
-  const daily = findWishHeading(cleaned, "DAILY USE");
-  const fun = findWishHeading(cleaned, "FUN EXTRAS");
+  let mode = "intro";
+  const intro = [];
+  const daily = [];
+  const fun = [];
 
-  const introEnd = daily ? daily.index : (fun ? fun.index : cleaned.length);
-  const introHtml = sanitizeWishListHtml(cleaned.slice(0, introEnd));
+  for (const block of blocks) {
+    const text = wishPlainText(block);
 
-  const dailyUseHtml = daily
-    ? sanitizeWishListHtml(
-        cleaned.slice(
-          daily.end,
-          fun && fun.index > daily.index ? fun.index : cleaned.length
-        )
-      )
-    : "";
+    if (/^\s*\[HEADING\]\s*DAILY\s+USE\s*$/i.test(text)) {
+      mode = "daily";
+      continue;
+    }
 
-  const funExtrasHtml = fun
-    ? sanitizeWishListHtml(cleaned.slice(fun.end))
-    : "";
+    if (/^\s*\[HEADING\]\s*FUN\s+EXTRAS\s*$/i.test(text)) {
+      mode = "fun";
+      continue;
+    }
+
+    // Strip Google-published chrome/title lines if they survive body cleanup.
+    if (isGooglePublishChrome(text)) continue;
+
+    if (mode === "intro") intro.push(block);
+    else if (mode === "daily") daily.push(block);
+    else if (mode === "fun") fun.push(block);
+  }
 
   return {
-    introHtml,
-    dailyUseHtml,
-    funExtrasHtml
+    introHtml: sanitizeWishListHtml(intro.join("")),
+    dailyUseHtml: sanitizeWishListHtml(daily.join("")),
+    funExtrasHtml: sanitizeWishListHtml(fun.join(""))
   };
 }
 
-function findWishHeading(html, title) {
-  // Heather uses: [HEADING] DAILY USE / [HEADING] FUN EXTRAS
-  const pattern = new RegExp(
-    "\\\\[HEADING\\\\](?:\\\\s|&nbsp;|<[^>]+>)*" +
-    title.split(/\\s+/).map(escapeRegex).join("(?:\\\\s|&nbsp;|<[^>]+>)*"),
-    "i"
+function wishListBlocks(html) {
+  // Published Google Docs normally use paragraphs/list items. Keep each as a
+  // self-contained block so embedded <a href> links survive unchanged.
+  const matches = html.match(
+    /<(?:p|li|h1|h2|h3|h4|h5|h6)\b[^>]*>[\s\S]*?<\/(?:p|li|h1|h2|h3|h4|h5|h6)>/gi
   );
 
-  const match = html.match(pattern);
-  if (!match) return null;
+  if (matches && matches.length) return matches;
 
-  let end = match.index + match[0].length;
+  // Fallback for an unexpected Google markup change.
+  return html
+    .split(/<br\s*\/?>|\n+/i)
+    .map(value => `<p>${value}</p>`)
+    .filter(value => wishPlainText(value));
+}
 
-  // Skip the rest of the heading's containing block when possible.
-  const closingTags = [
-    "</p>", "</div>", "</h1>", "</h2>", "</h3>", "</h4>", "<br"
-  ];
-  const closes = closingTags
-    .map(tag => html.indexOf(tag, end))
-    .filter(index => index >= 0);
+function wishPlainText(html) {
+  return (html || "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;|&#160;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&quot;|&#34;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
-  if (closes.length) end = Math.min(...closes) + 5;
-
-  return { index: match.index, end };
+function isGooglePublishChrome(text) {
+  const value = (text || "").trim();
+  return /^(Published using Google Docs|Report abuse|Learn more|Updated automatically every \d+ minutes?|Wish List)$/i.test(value);
 }
 
 function sanitizeWishListHtml(value) {
