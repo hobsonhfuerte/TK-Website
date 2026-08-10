@@ -253,6 +253,18 @@ function openArchiveWeek(week) {
     document.getElementById('wishFunExtras').innerHTML =
       data.funExtrasHtml || '<p>No items listed right now.</p>';
 
+    const donorsBox = document.getElementById('donorsChooseBox');
+    if (data.donorsChooseHtml && data.donorsChooseHtml.trim()) {
+      document.getElementById('donorsChooseBody').innerHTML = data.donorsChooseHtml;
+      donorsBox.hidden = false;
+    }
+
+    const giftBox = document.getElementById('giftCardsBox');
+    if (data.giftCardsHtml && data.giftCardsHtml.trim()) {
+      document.getElementById('giftCardsBody').innerHTML = data.giftCardsHtml;
+      giftBox.hidden = false;
+    }
+
     loading.hidden = true;
     content.hidden = false;
   } catch (error) {

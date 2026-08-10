@@ -864,3 +864,30 @@ a{color:inherit}
 @media(max-width:600px){
   .home-grid-bottom{grid-template-columns:1fr !important}
 }
+
+
+/* Dynamic Donor's Choose + Gift Card callouts inside FUN EXTRAS */
+.wish-callout{
+  margin:0 25px 18px;
+  padding:15px 16px;
+  border-radius:13px;
+  line-height:1.55;
+}
+.wish-callout:last-child{margin-bottom:25px}
+.wish-callout-title{
+  color:var(--navy);
+  font-weight:800;
+  margin-bottom:7px;
+}
+.wish-callout-body{color:#3d5264}
+.wish-callout-body p:first-child{margin-top:0}
+.wish-callout-body p:last-child{margin-bottom:0}
+.wish-callout-body a{
+  color:var(--navy);
+  font-weight:800;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+.wish-callout-body a::after{content:" ↗";font-size:.85em}
+.donors-callout{background:#eef4f8;border:1px solid #d6e3eb}
+.gift-callout{background:#fff8df;border:1px solid #ecd995}

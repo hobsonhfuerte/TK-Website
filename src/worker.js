@@ -315,7 +315,9 @@ async function handleWishListApi() {
       source: WISH_LIST_URL,
       introHtml: parsed.introHtml,
       dailyUseHtml: parsed.dailyUseHtml,
-      funExtrasHtml: parsed.funExtrasHtml
+      funExtrasHtml: parsed.funExtrasHtml,
+      donorsChooseHtml: parsed.donorsChooseHtml,
+      giftCardsHtml: parsed.giftCardsHtml
     });
   } catch (error) {
     return jsonResponse({
@@ -326,43 +328,69 @@ async function handleWishListApi() {
 }
 
 function parseWishList(sourceHtml) {
-  // Google published Docs contain their own toolbar/header plus substantial
-  // formatting markup. Convert the document body to stable logical blocks
-  // first, then split on Heather's [HEADING] markers.
   const cleaned = cleanGoogleHtml(sourceHtml || "");
   const blocks = wishListBlocks(cleaned);
 
   let mode = "intro";
-  const intro = [];
-  const daily = [];
-  const fun = [];
+  const buckets = { intro: [], daily: [], fun: [], donors: [], gifts: [] };
 
   for (const block of blocks) {
     const text = wishPlainText(block);
 
-    if (/^\s*\[HEADING\]\s*DAILY\s+USE\s*$/i.test(text)) {
+    if (wishHeadingMatches(text, /^DAILY\s+USE$/i)) {
       mode = "daily";
       continue;
     }
-
-    if (/^\s*\[HEADING\]\s*FUN\s+EXTRAS\s*$/i.test(text)) {
+    if (wishHeadingMatches(text, /^FUN\s+EXTRAS$/i)) {
       mode = "fun";
       continue;
     }
+    if (wishHeadingMatches(text, /^DONOR'?S?\s+CHOOSE(?:\s+PROJECT)?$/i) ||
+        wishHeadingMatches(text, /^DONORSCHOOSE(?:\s+PROJECT)?$/i)) {
+      mode = "donors";
+      // Preserve any content appearing on the same heading line after the
+      // heading itself, such as "(click here)" with its embedded link.
+      const remainder = wishHeadingRemainder(block);
+      if (remainder) buckets.donors.push(remainder);
+      continue;
+    }
+    if (wishHeadingMatches(text, /^(?:GREAT\s+)?GIFT\s+CARDS?(?:\s+FOR\s+CLASSROOM\s+SUPPLIES)?$/i)) {
+      mode = "gifts";
+      continue;
+    }
 
-    // Strip Google-published chrome/title lines if they survive body cleanup.
     if (isGooglePublishChrome(text)) continue;
-
-    if (mode === "intro") intro.push(block);
-    else if (mode === "daily") daily.push(block);
-    else if (mode === "fun") fun.push(block);
+    buckets[mode].push(block);
   }
 
   return {
-    introHtml: sanitizeWishListHtml(intro.join("")),
-    dailyUseHtml: sanitizeWishListHtml(daily.join("")),
-    funExtrasHtml: sanitizeWishListHtml(fun.join(""))
+    introHtml: sanitizeWishListHtml(buckets.intro.join("")),
+    dailyUseHtml: sanitizeWishListHtml(buckets.daily.join("")),
+    funExtrasHtml: sanitizeWishListHtml(buckets.fun.join("")),
+    donorsChooseHtml: sanitizeWishListHtml(buckets.donors.join("")),
+    giftCardsHtml: sanitizeWishListHtml(buckets.gifts.join(""))
   };
+}
+
+function wishHeadingMatches(text, headingPattern) {
+  const normalized = (text || "").replace(/\s+/g, " ").trim();
+  const match = normalized.match(/^\[HEADING\]\s*(.*)$/i);
+  if (!match) return false;
+
+  // The Donor's Choose heading may contain "(click here)" after the heading.
+  // Test both the complete remainder and the part before an opening parenthesis.
+  const headingText = match[1].trim();
+  const beforeParen = headingText.split(/\s*\(/)[0].trim();
+  return headingPattern.test(headingText) || headingPattern.test(beforeParen);
+}
+
+function wishHeadingRemainder(block) {
+  // For: [HEADING] Donor's Choose project (click <a>here</a>)
+  // remove only the heading text and retain the linked "(click here)" portion.
+  const html = block || "";
+  const marker = /(\[HEADING\](?:\s|&nbsp;|<[^>]+>)*DONOR'?S?(?:\s|&nbsp;|<[^>]+>)+CHOOSE(?:\s|&nbsp;|<[^>]+>)+PROJECT)/i;
+  if (!marker.test(html)) return "";
+  return html.replace(marker, "").trim();
 }
 
 function wishListBlocks(html) {
