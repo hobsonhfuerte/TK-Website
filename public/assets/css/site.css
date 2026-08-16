@@ -891,3 +891,58 @@ a{color:inherit}
 .wish-callout-body a::after{content:" ↗";font-size:.85em}
 .donors-callout{background:#eef4f8;border:1px solid #d6e3eb}
 .gift-callout{background:#fff8df;border:1px solid #ecd995}
+
+
+/* === LUNCH MENU PAGE + HOMEPAGE TILE === */
+.lunch-menu-card{
+  max-width:760px;
+  margin:0 auto;
+  text-align:center;
+}
+.lunch-menu-card h2{
+  font-family:'Patrick Hand',cursive;
+  color:var(--navy);
+  font-size:34px;
+  margin:8px 0 10px;
+}
+.lunch-menu-card p{line-height:1.6}
+.lunch-menu-icon{
+  font-size:62px;
+  line-height:1;
+  margin-bottom:8px;
+}
+.lunch-menu-button{margin-top:10px}
+.lunch-menu-note{
+  margin:16px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+.lunch-home-card{
+  display:flex;
+  flex-direction:column;
+}
+.lunch-home-card p{
+  color:#53677a;
+  line-height:1.5;
+}
+.lunch-home-icon{
+  font-size:44px;
+  line-height:1;
+  margin:6px 0 6px;
+}
+.lunch-home-card .cta{
+  align-self:flex-start;
+  margin-top:auto;
+}
+.home-grid-bottom{
+  grid-template-columns:repeat(5,1fr) !important;
+}
+@media(max-width:1150px){
+  .home-grid-bottom{grid-template-columns:repeat(3,1fr) !important}
+}
+@media(max-width:800px){
+  .home-grid-bottom{grid-template-columns:1fr 1fr !important}
+}
+@media(max-width:600px){
+  .home-grid-bottom{grid-template-columns:1fr !important}
+}
