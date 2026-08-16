@@ -95,3 +95,12 @@ Details and links...
 Heather can use any heading text she wants, change headings week to week,
 or use no headings at all. If there are no [HEADING] markers in a week,
 the site displays that week's content as one continuous Weekly Update section.
+
+
+## Lunch Menu
+
+Added:
+- `public/lunch-menu.html`
+- Top navigation now ends with School Calendar → Lunch Menu → About the Teacher
+- Homepage Lunch Menu tile
+- MealViewer link: https://schools.mealviewer.com/school/ElemSchools

@@ -24,75 +24,69 @@
 </header>
 
 <nav class="navbar" aria-label="Main navigation"><div class="nav-inner">
-<a class="nav-link active" href="index.html"><span class="icon">🏠</span>Home</a>
-<a class="nav-link" href="weekly-news.html"><span class="icon">📝</span>Weekly News</a>
-<a class="nav-link" href="scholastic.html"><span class="icon">📚</span>Scholastic</a>
-<a class="nav-link" href="tk-faqs.html"><span class="icon">❓</span>TK FAQs</a>
-<a class="nav-link" href="wish-list.html"><span class="icon">⭐</span>Wish List</a>
-<a class="nav-link" href="photos.html"><span class="icon">📸</span>Photos</a>
-<a class="nav-link" href="calendar.html"><span class="icon">📅</span>School Calendar</a>
-<a class="nav-link" href="lunch-menu.html"><span class="icon">🧺</span>Lunch Menu</a>
-<a class="nav-link" href="about.html"><span class="icon">🍎</span>About the Teacher</a>
+<a class="nav-link active" href="index.html"><span class="icon">🏠</span><span class="nav-label">Home</span></a>
+<a class="nav-link" href="weekly-news.html"><span class="icon">📝</span><span class="nav-label">Weekly News</span></a>
+<a class="nav-link" href="scholastic.html"><span class="icon">📚</span><span class="nav-label">Scholastic</span></a>
+<a class="nav-link" href="tk-faqs.html"><span class="icon">❓</span><span class="nav-label">TK FAQs</span></a>
+<a class="nav-link" href="wish-list.html"><span class="icon">⭐</span><span class="nav-label">Wish List</span></a>
+<a class="nav-link" href="photos.html"><span class="icon">📸</span><span class="nav-label">Photos</span></a>
+<a class="nav-link" href="calendar.html"><span class="icon">📅</span><span class="nav-label">School Calendar</span></a>
+<a class="nav-link" href="lunch-menu.html"><span class="icon icon-image"><img src="assets/images/lunchbox-icon.png" alt="" class="nav-icon-img"></span><span class="nav-label">Lunch Menu</span></a>
+<a class="nav-link" href="about.html"><span class="icon">🍎</span><span class="nav-label">About the Teacher</span></a>
 </div></nav>
 
 <main class="content">
 
-<section class="home-grid-top">
-  <div class="paper-card">
-    <span id="homeWeekChip" class="chip">Current Week</span>
-    <h2>This Week at a Glance ⭐</h2>
+<section class="home-feature paper-card">
+  <span id="homeWeekChip" class="chip">Current Week</span>
+  <h2 class="home-feature-title">This Week at a Glance ⭐</h2>
 
-    <div id="homeWeekLoading" class="home-week-loading">
-      Loading this week's classroom update…
-    </div>
-
-    <div id="homeWeekError" class="home-week-error" hidden>
-      This week's highlights are temporarily unavailable.
-    </div>
-
-    <div id="homeGlance" class="at-glance" hidden></div>
-
-    <a class="quick-link" href="weekly-news.html">Read the full Weekly News →</a>
+  <div id="homeWeekLoading" class="home-week-loading">
+    Loading this week's classroom update…
   </div>
+
+  <div id="homeWeekError" class="home-week-error" hidden>
+    This week's highlights are temporarily unavailable.
+  </div>
+
+  <div id="homeGlance" class="at-glance at-glance-home" hidden></div>
+
+  <a class="quick-link" href="weekly-news.html">Read the full Weekly News →</a>
 </section>
 
-<section class="home-grid-bottom">
-  <div class="paper-card about-mini">
-    <div>
-      <div class="ribbon-label coral">About the Teacher 🍎</div>
+<section class="home-grid-bottom home-grid-four">
+  <div class="paper-card home-tile about-home-card">
+    <div class="home-tile-header pink">About the Teacher 🍎</div>
+    <div class="about-home-body">
       <img src="assets/images/heather-hobson.png" alt="Mrs. Heather Hobson">
-      <p><strong>Heather Hobson</strong><br>27 years of teaching and proud to be a Fuerte Falcon!</p>
+      <div class="about-home-copy">
+        <p><strong>Heather Hobson</strong><br>27 years of teaching and proud to be a Fuerte Falcon!</p>
+      </div>
     </div>
-    <a class="cta" href="about.html">Learn more ♥</a>
+    <a class="cta blue" href="about.html">Learn More →</a>
   </div>
 
-  <div id="homeReminderCard" class="paper-card" hidden>
-    <div class="ribbon-label">Reminder 💙</div>
-    <div id="homeReminderBody" class="home-dynamic-body"></div>
-    <a class="quick-link" href="weekly-news.html">See this week’s full update →</a>
-  </div>
-
-  <div id="homeLookAheadCard" class="paper-card" hidden>
-    <div class="ribbon-label green">Look Ahead 💚</div>
+  <div id="homeLookAheadCard" class="paper-card home-tile lookahead-home-card" hidden>
+    <div class="home-tile-header green">Look Ahead 💚</div>
     <div id="homeLookAheadBody" class="home-dynamic-body"></div>
-    <a class="quick-link" href="weekly-news.html">See upcoming details →</a>
+    <a class="cta green" href="weekly-news.html">See Details →</a>
   </div>
 
-
-  <div class="paper-card lunch-home-card">
-    <div class="ribbon-label green">Lunch Menu 🧺</div>
-    <div class="lunch-home-icon">🧺🥪</div>
-    <p>See the latest elementary school meal choices and nutrition information.</p>
-    <a class="cta" href="lunch-menu.html">View Lunch Menu</a>
+  <div class="paper-card home-tile lunch-home-card story-lunch-card">
+    <div class="home-tile-header yellow">Lunch Menu</div>
+    <div class="lunch-card-body">
+      <img src="assets/images/lunchbox-icon.png" alt="Lunch menu icon" class="lunch-home-illustration">
+      <p>See the latest elementary school meal choices and nutrition information.</p>
+    </div>
+    <a class="cta orange" href="lunch-menu.html">View Menu →</a>
   </div>
 
-  <div class="paper-card">
-    <div class="ribbon-label coral">Let's Connect ♥</div>
+  <div class="paper-card home-tile connect-home-card">
+    <div class="home-tile-header blue">Let's Connect 💛</div>
     <p>I'm looking forward to a great year!</p>
-    <p style="font-family:'Patrick Hand',cursive;font-size:35px;color:var(--navy);margin:8px 0">Go Falcons!</p>
+    <p class="go-falcons">Go Falcons!</p>
     <a class="cta" href="mailto:hobsonh@cajonvalley.net">Email Mrs. Hobson</a>
-    <p class="home-instagram">📷 <a href="https://www.instagram.com/fantasticfuertekinder/" target="_blank" rel="noopener">@fantasticfuertekinder</a></p>
-    <div class="card-illustration">🎒</div>
+    <p class="home-instagram"><span class="ig-camera">📷</span> <a href="https://www.instagram.com/fantasticfuertekinder/" target="_blank" rel="noopener">@fantasticfuertekinder</a></p>
   </div>
 </section>
 

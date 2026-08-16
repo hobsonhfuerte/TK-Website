@@ -297,7 +297,6 @@ function openArchiveWeek(week) {
     weekChip.textContent = `Week of ${current.label}`;
 
     const thisWeek = findHomepageSection(current.sections, 'this week');
-    const reminder = findHomepageSection(current.sections, 'reminder');
     const lookAhead =
       findHomepageSection(current.sections, 'look ahead') ||
       findHomepageSection(current.sections, 'coming up');
@@ -313,11 +312,6 @@ function openArchiveWeek(week) {
         '<div class="glance-value">See Weekly News for this week’s classroom update.</div>' +
         '</div>';
       glance.hidden = false;
-    }
-
-    if (reminder) {
-      document.getElementById('homeReminderBody').innerHTML = reminder.html;
-      document.getElementById('homeReminderCard').hidden = false;
     }
 
     if (lookAhead) {
