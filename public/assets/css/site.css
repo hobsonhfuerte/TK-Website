@@ -1008,3 +1008,485 @@ a{color:inherit}
     font-size:12.5px !important;
   }
 }
+
+
+/* === FINAL NAV + HOMEPAGE WIDTH FIX === */
+
+/* Desktop: nine equal tabs, full visual font/icon size, but shorter/tighter buttons. */
+.nav-inner{
+  width:min(1400px,100%) !important;
+  margin:auto !important;
+  display:grid !important;
+  grid-template-columns:repeat(9,minmax(0,1fr)) !important;
+  gap:0 !important;
+}
+.nav-link{
+  min-height:88px !important;
+  padding:5px 4px !important;
+  font-size:17px !important;
+  line-height:1.05 !important;
+  white-space:normal !important;
+}
+.nav-link .icon{
+  font-size:29px !important;
+  margin:0 0 5px 0 !important;
+}
+
+/* Four permanent homepage tiles should always consume the full row. */
+.home-grid-bottom{
+  width:100% !important;
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:20px !important;
+  align-items:stretch !important;
+}
+.home-grid-bottom > .paper-card{
+  min-width:0 !important;
+  width:100% !important;
+  max-width:none !important;
+  height:100% !important;
+  box-sizing:border-box !important;
+}
+
+/* Tablet/mobile behavior. */
+@media(max-width:980px){
+  .nav-inner{
+    grid-template-columns:repeat(4,1fr) !important;
+  }
+  .nav-link{
+    min-height:82px !important;
+    font-size:16px !important;
+  }
+  .nav-link .icon{
+    font-size:27px !important;
+  }
+  .home-grid-bottom{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+@media(max-width:560px){
+  .nav-inner{
+    grid-template-columns:repeat(2,1fr) !important;
+  }
+  .home-grid-bottom{
+    grid-template-columns:1fr !important;
+  }
+}
+
+
+/* === HOMEPAGE LAYOUT REFRESH === */
+
+/* Storybook nav: 9 equal tabs, original-ish font/icon size, no second row on desktop */
+.navbar{
+  background:var(--navy);
+  border-top:2px dashed rgba(255,255,255,.35);
+  border-bottom:2px dashed rgba(255,255,255,.35);
+}
+.nav-inner{
+  width:min(1480px,100%) !important;
+  margin:auto !important;
+  display:grid !important;
+  grid-template-columns:repeat(9,minmax(0,1fr)) !important;
+  gap:0 !important;
+}
+.nav-link{
+  min-height:84px !important;
+  color:#fff;
+  text-decoration:none;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  border-right:1px dashed rgba(255,255,255,.28);
+  font-family:'Patrick Hand',cursive;
+  font-size:17px !important;
+  line-height:1.08 !important;
+  padding:6px 4px !important;
+  white-space:normal !important;
+}
+.nav-link:last-child{border-right:0}
+.nav-link .icon{
+  font-size:28px !important;
+  margin:0 0 5px 0 !important;
+  line-height:1;
+}
+.nav-label{display:block}
+.icon-image{display:flex;align-items:center;justify-content:center}
+.nav-icon-img{
+  width:28px;
+  height:28px;
+  object-fit:contain;
+  display:block;
+}
+.nav-link:hover,.nav-link.active{
+  background:var(--gold);
+  color:var(--navy);
+}
+
+.home-feature{
+  padding:18px 26px 22px;
+}
+.home-feature-title{
+  font-size:34px !important;
+  margin:8px 0 16px !important;
+}
+.at-glance-home{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:0;
+  text-align:center;
+  margin-top:4px;
+}
+.at-glance-home .glance-item{
+  padding:14px 16px 16px;
+  border-right:1px solid #e0d7c7;
+}
+.at-glance-home .glance-item:last-child{border-right:0}
+.at-glance-home .glance-icon{
+  font-size:46px;
+  line-height:1;
+  margin-bottom:10px;
+}
+.at-glance-home .glance-label{
+  display:inline-block;
+  font-size:13px;
+  padding:5px 16px;
+  border-radius:12px;
+  font-weight:800;
+  margin:0 0 10px;
+}
+.at-glance-home .glance-value{
+  font-size:20px;
+  line-height:1.35;
+  font-weight:800;
+}
+.at-glance-home .glance-item:nth-child(1) .glance-label{background:#f9dbe2}
+.at-glance-home .glance-item:nth-child(2) .glance-label{background:#deedd9}
+.at-glance-home .glance-item:nth-child(3) .glance-label{background:#e7dcfa}
+.at-glance-home .glance-item:nth-child(4) .glance-label{background:#f8e3a6}
+.at-glance-home .glance-item:nth-child(5) .glance-label{background:#cfe6fb}
+.at-glance-home .glance-item:nth-child(6) .glance-label{background:#dff0d9}
+.at-glance-home .glance-item:nth-child(7) .glance-label{background:#fde2a6}
+
+.home-grid-four{
+  margin-top:20px;
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:20px;
+  align-items:stretch;
+}
+.home-tile{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  height:100%;
+}
+.home-tile-header{
+  display:inline-block;
+  align-self:flex-start;
+  font-family:'Patrick Hand',cursive;
+  font-size:26px;
+  color:var(--navy);
+  padding:5px 18px;
+  border-radius:8px;
+  margin-bottom:12px;
+}
+.home-tile-header.pink{background:#f5d8e1}
+.home-tile-header.green{background:#dbeccc}
+.home-tile-header.yellow{background:#f7edc8}
+.home-tile-header.blue{background:#d8eaf8}
+
+.about-home-card{
+  background:rgba(255,243,247,.96);
+}
+.about-home-body{
+  display:flex;
+  gap:16px;
+  align-items:flex-start;
+  margin:2px 0 12px;
+}
+.about-home-body img{
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  object-fit:cover;
+  object-position:center top;
+  border:4px solid #fff;
+  box-shadow:0 4px 10px rgba(0,0,0,.10);
+  flex:0 0 90px;
+}
+.about-home-copy p{
+  margin:0;
+  font-size:14px;
+  line-height:1.55;
+}
+
+.lookahead-home-card{
+  background:rgba(244,252,241,.96);
+}
+.lookahead-home-card .home-dynamic-body{
+  font-size:14px;
+  line-height:1.45;
+}
+.lookahead-home-card .home-dynamic-body p,
+.lookahead-home-card .home-dynamic-body li{
+  margin:0 0 8px;
+}
+.lookahead-home-card .home-dynamic-body ul{
+  padding-left:18px;
+  margin:0 0 8px;
+}
+
+.story-lunch-card{
+  background:rgba(255,250,235,.96);
+}
+.lunch-card-body{
+  display:flex;
+  gap:16px;
+  align-items:center;
+  margin:2px 0 12px;
+}
+.lunch-home-illustration{
+  width:110px;
+  height:110px;
+  object-fit:contain;
+  flex:0 0 110px;
+}
+.story-lunch-card p{
+  margin:0;
+  font-size:14px;
+  line-height:1.6;
+}
+
+.connect-home-card{
+  background:rgba(242,249,255,.96);
+}
+.connect-home-card p{
+  margin:0 0 12px;
+}
+.go-falcons{
+  font-family:'Patrick Hand',cursive;
+  color:var(--navy);
+  font-size:34px;
+  line-height:1.1;
+}
+.home-instagram{
+  margin-top:14px;
+  font-weight:800;
+}
+.home-instagram a{
+  color:var(--navy);
+  text-decoration:none;
+}
+.ig-camera{font-size:20px;vertical-align:-2px}
+
+.cta.blue{background:#1673c7;color:#fff;box-shadow:0 3px 0 #0f5b9c}
+.cta.green{background:#1f9b34;color:#fff;box-shadow:0 3px 0 #17752a}
+.cta.orange{background:#ff8a15;color:#fff;box-shadow:0 3px 0 #d46b06}
+
+.story-lunch-menu-card{
+  max-width:760px;
+  margin:0 auto;
+  text-align:center;
+}
+.lunch-menu-story-icon{
+  width:140px;
+  height:140px;
+  object-fit:contain;
+  margin:0 auto 10px;
+  display:block;
+}
+
+/* Desktop width for the full site */
+.content{
+  width:min(1480px,calc(100% - 32px));
+}
+.hero-image-wrap{
+  max-width:1540px;
+  margin:0 auto;
+}
+
+/* Responsive behavior */
+@media(max-width:1150px){
+  .home-grid-four{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+  .about-home-body, .lunch-card-body{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+  .at-glance-home .glance-item{
+    border-right:0;
+    border-bottom:1px solid #e0d7c7;
+  }
+}
+@media(max-width:980px){
+  .nav-inner{
+    grid-template-columns:repeat(3,1fr) !important;
+  }
+}
+@media(max-width:680px){
+  .home-grid-four{
+    grid-template-columns:1fr !important;
+  }
+  .nav-inner{
+    grid-template-columns:repeat(2,1fr) !important;
+  }
+}
+
+
+/* === HOMEPAGE + LUNCH ICON TUNING V2 === */
+
+/* Slightly narrower content so the 4 bottom tiles sit at a comfortable standard width */
+.content{
+  width:min(1260px,calc(100% - 32px)) !important;
+}
+
+/* Bottom homepage tiles: smaller and tighter */
+.home-grid-four{
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:16px !important;
+}
+
+.home-tile{
+  padding:18px !important;
+}
+
+.home-tile-header{
+  font-size:22px !important;
+  padding:5px 14px !important;
+  margin-bottom:10px !important;
+}
+
+.about-home-body{
+  gap:12px !important;
+  margin:2px 0 10px !important;
+}
+.about-home-body img{
+  width:76px !important;
+  height:76px !important;
+  flex:0 0 76px !important;
+}
+.about-home-copy p,
+.story-lunch-card p,
+.lookahead-home-card .home-dynamic-body,
+.connect-home-card p{
+  font-size:13px !important;
+  line-height:1.5 !important;
+}
+
+.lunch-card-body{
+  gap:12px !important;
+  margin:2px 0 10px !important;
+}
+.lunch-home-illustration{
+  width:88px !important;
+  height:88px !important;
+  flex:0 0 88px !important;
+}
+
+.go-falcons{
+  font-size:30px !important;
+}
+.home-instagram{
+  font-size:13px !important;
+  margin-top:10px !important;
+}
+
+.home-tile .cta{
+  padding:9px 14px !important;
+  font-size:15px !important;
+}
+
+/* Lunch Menu page icon: clean crop only, no extra text */
+.story-lunch-menu-card{
+  max-width:720px !important;
+}
+.lunch-menu-story-icon{
+  width:120px !important;
+  height:120px !important;
+  object-fit:contain !important;
+  margin:0 auto 12px !important;
+  display:block !important;
+}
+
+/* Keep 4 across on normal desktop; switch only when genuinely narrower */
+@media(max-width:1120px){
+  .home-grid-four{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+@media(max-width:680px){
+  .home-grid-four{
+    grid-template-columns:1fr !important;
+  }
+}
+
+
+/* === THIS WEEK AT A GLANCE REFINEMENT === */
+
+/* Spread the current-week columns evenly across the full width of the card */
+.at-glance-home{
+  display:grid !important;
+  grid-template-columns:repeat(auto-fit,minmax(0,1fr)) !important;
+  width:100% !important;
+  gap:0 !important;
+  align-items:start !important;
+}
+
+/* Center the content within each subject column */
+.at-glance-home .glance-item{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  text-align:center !important;
+  padding:18px 10px 18px !important;
+  min-width:0 !important;
+  border-right:1px solid #e0d7c7 !important;
+}
+.at-glance-home .glance-item:last-child{
+  border-right:0 !important;
+}
+
+.at-glance-home .glance-icon{
+  margin:0 0 12px 0 !important;
+}
+
+.at-glance-home .glance-label{
+  margin:0 0 14px 0 !important;
+  text-align:center !important;
+}
+
+.at-glance-home .glance-value{
+  text-align:center !important;
+  margin:0 auto !important;
+  max-width:95% !important;
+}
+
+/* On smaller screens, remove the vertical separators so it stacks more cleanly */
+@media(max-width:1150px){
+  .at-glance-home .glance-item{
+    border-right:0 !important;
+    border-bottom:1px solid #e0d7c7 !important;
+  }
+  .at-glance-home .glance-item:last-child{
+    border-bottom:0 !important;
+  }
+}
+
+
+/* === TRANSPARENT LUNCHBOX ICON TUNE === */
+.nav-icon-img{
+  width:26px !important;
+  height:26px !important;
+  object-fit:contain !important;
+  display:block !important;
+}
+.lunch-home-illustration{
+  background:transparent !important;
+}
+.lunch-menu-story-icon{
+  background:transparent !important;
+}
