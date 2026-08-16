@@ -946,3 +946,65 @@ a{color:inherit}
 @media(max-width:600px){
   .home-grid-bottom{grid-template-columns:1fr !important}
 }
+
+
+/* === NAV + HOMEPAGE GRID REFINEMENTS === */
+
+/* Keep the full desktop navigation on one row by tightening spacing slightly. */
+.nav-inner{
+  gap:4px !important;
+  flex-wrap:nowrap !important;
+}
+.nav-link{
+  padding:10px 9px !important;
+  font-size:13px !important;
+  white-space:nowrap !important;
+}
+.nav-link .icon{
+  margin-right:4px !important;
+  font-size:14px !important;
+}
+
+/* Let the lower homepage cards expand evenly to fill the available width. */
+.home-grid-bottom{
+  display:grid !important;
+  width:100% !important;
+  grid-template-columns:repeat(5, minmax(0, 1fr)) !important;
+  gap:16px !important;
+  align-items:stretch !important;
+}
+.home-grid-bottom > .paper-card{
+  min-width:0 !important;
+  width:auto !important;
+  max-width:none !important;
+  height:100% !important;
+}
+
+/* More adaptive breakpoints so the row always uses the full content width. */
+@media(max-width:1100px){
+  .home-grid-bottom{
+    grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+@media(max-width:760px){
+  .home-grid-bottom{
+    grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+@media(max-width:520px){
+  .home-grid-bottom{
+    grid-template-columns:1fr !important;
+  }
+}
+
+/* Only wrap the nav when the screen is truly tablet/mobile sized. */
+@media(max-width:900px){
+  .nav-inner{
+    flex-wrap:wrap !important;
+    justify-content:center !important;
+  }
+  .nav-link{
+    padding:9px 8px !important;
+    font-size:12.5px !important;
+  }
+}
